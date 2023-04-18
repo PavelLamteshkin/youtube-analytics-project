@@ -14,6 +14,14 @@ class Channel:
 
         self.channel_id = channel_id
 
+        channel = self.get_service().channels().list(id=channel_id, part='snippet,statistics').execute()
+        self.title = channel['items'][0]['snippet']['title']
+        self.description = channel['items'][0]['snippet']['description']
+        self.url = channel['items'][0]['snippet']['thumbnails']['default']['url']
+        self.subscriber_count = channel['items'][0]['statistics']['subscriberCount']
+        self.video_count = channel['items'][0]['statistics']['videoCount']
+        self.view_count = channel['items'][0]['statistics']['viewCount']
+
 
     @classmethod
     def get_service(cls):
@@ -26,23 +34,25 @@ class Channel:
         return youtube
 
 
-    @classmethod
-    def to_json(cls, channel_id):
+    def to_json(self, jason_file):
         """
         Метод сохраняет в файл значения атрибутов экземпляра
         """
-        channel = cls.get_service().channels().list(id=channel_id, part='snippet,statistics').execute()
 
-        cls.title = channel['items'][0]['snippet']['title']
-        cls.description = channel['items'][0]['snippet']['description']
-        cls.url = channel['items'][0]['snippet']['thumbnails']['default']['url']
-        cls.subscriberCount = channel['items'][0]['statistics']['subscriberCount']
-        cls.videoCount = channel['items'][0]['statistics']['videoCount']
-        cls.viewCount = channel['items'][0]['statistics']['viewCount']
+        data = {"title": self.title,
+                "description": self.description,
+                "url": self.url,
+                "subscriber_count": self.subscriber_count,
+                "video_count": self.video_count,
+                "view_count": self.view_count
+                }
 
-        return channel
+        with open('jason_file', 'w') as outfile:
+            json.dump(data, outfile)
+
+        return data
 
 
-    def print_info(self, channel):
+    def print_info(self, data):
 
-        return json.dumps(channel, indent=2, ensure_ascii=False)
+        return json.dumps(data, indent=2, ensure_ascii=False)
